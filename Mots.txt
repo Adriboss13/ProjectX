@@ -1,0 +1,200 @@
+Maison,1
+Bateau,1
+Poisson,1
+Soleil,1
+Nuage,1
+Chaise,1
+Étoile,1
+Fleur,1
+Arbre,1
+Chat,1
+Chien,1
+Lune,1
+Voiture,1
+Montagne,1
+Pomme,1
+Livre,1
+Échelle,1
+Clé,1
+Canard,1
+Avion,1
+Ballon,1
+Horloge,1
+Pizza,1
+Camion,1
+Parapluie,1
+Banc,1
+Bonhomme de neige,1
+Plage,1
+Cerf-volant,1
+Porte,1
+Sac à dos,1
+Moustache,1
+Lit,1
+Train,1
+Coquillage,1
+Guitare,1
+Téléphone,1
+Escargot,1
+Lanterne,1
+Miroir,1
+Trompette,1
+Voilier,1
+Pont,1
+Cactus,1
+Panier,1
+Tasse,1
+Dragon,1
+Cerf,1
+Éléphant,1
+Caméra,1
+Crayon,1
+Fourchette,1
+Cartable,1
+Poire,1
+Lunettes,1
+Couronne,1
+Papillon,1
+Requin,1
+Feuille,1
+Crocodile,1
+Tortue,1
+Clown,1
+Robot,1
+Loup,1
+Cheval,1
+Tortue,1
+Zèbre,1
+Tigre,1
+Chapeau,1
+Écouteurs,1
+Balançoire,1
+Rose,1
+Ciel,1
+Gâteau,1
+Valise,1
+Chaussettes,1
+Biberon,1
+Lait,1
+Table,1
+Carton,1
+Étoile filante,1
+Chocolat,1
+Champignon,1
+Sapin de Noël,1
+Chaudron,1
+Poêle,1
+Camion de pompier,1
+Planète,1
+Fée,1
+Épée,1
+Médaille,1
+Bougie,1
+Radio,1
+Peluche,1
+Moto,1
+Roue,1
+Montre,1
+Burger,1
+Couteau,1
+Canette,1
+Casse-noisette,2
+Parc aquatique,2
+Comptable,2
+Ventilateur,2
+Éolienne,2
+Champ de bataille,2
+Peinture abstraite,2
+Dahu,2
+Ingénieur,2
+Montgolfière,2
+Distributeur automatique,2
+Bateau pirate,2
+Tri sélectif,2
+Fort Boyard,2
+Star Wars,2
+Bibliothécaire,2
+Boussole,2
+Fer à cheval,2
+Boîte à musique,2
+Aspirateur,2
+Antiquité,2
+Tornade,2
+Base spatiale,2
+Statue de la liberté,2
+Planche de surf,2
+Cité médiévale,2
+Cascade,2
+Danse folklorique,2
+Chandeleur,2
+Baromètre,2
+Moulin à vent,2
+Avion de chasse,2
+Corde à sauter,2
+Phare,2
+Sous-marin,2
+Observatoire,2
+Statue grecque,2
+Salle de cinéma,2
+Fusée,2
+Garde royal,2
+Dobby,2
+Aquarium,2
+Volcan,2
+Rameur,2
+Streaming,2
+Poste de secours,2
+Cheminée,2
+Enceinte Bluetooth,2
+Tatouage,2
+Librairie,2
+Police scientifique,2
+Tyrolienne,2
+Prothésiste ongulaire,2
+Laboratoire,2
+Sushi,2
+Cascadeur,2
+Sommelier,2
+Restaurant à volonté,2
+Dentiste,2
+Croquette,2
+Temple maya,2
+Hélicoptère,2
+Sphinx égyptien,2
+Sorcier,2
+Dompteur de lion,2
+Piste de ski,2
+Simba,2
+Cabine téléphonique,2
+Grand Huit,2
+Jon Snow,2
+Mère Noël,2
+Machine à écrire,2
+Manoir hanté,2
+Front National,2
+Idefix,2
+Équipe de curling,2
+Fish and Chips,2
+Astrologie,2
+Table de mixage,2
+Eurostar,2
+Course de relais,2
+Bateau-mouche,2
+Réalité virtuelle,2
+Panneau publicitaire,2
+Corse,2
+Train fantôme,2
+Marchand de glace,2
+Jardin botanique,2
+Étoile de mer,2
+Annimalerie,2
+Titanic,2
+Loup-garou,2
+Métamorphose,2
+Labyrinthe,2
+Exorciste,2
+Journal télé,2
+Voyage astral,2
+Serviette hygiènique,2
+Judo,2
+Zombie,2
