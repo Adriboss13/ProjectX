@@ -1,6 +1,3 @@
-// Cette classe représente un client pour une application de dessin collaboratif en réseau.
-// Elle permet à plusieurs utilisateurs de dessiner ensemble en temps réel, chaque action de dessin étant synchronisée via un serveur central.
-
 import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
@@ -12,35 +9,88 @@ import java.util.List;
 import javax.swing.*;
 
 public class Client extends JFrame {
-    // Configuration réseau
-    private static final int PORT = 12345; // Port utilisé pour se connecter au serveur
-    private static final String SERVER = "127.0.0.1"; // Adresse du serveur (localhost dans ce cas)
-
-    // Gestion de la connexion et des messages
-    private static Socket socket; // Socket pour la connexion au serveur
-    private static PrintWriter out; // Flux pour envoyer des données au serveur
-    public static BufferedReader in; // Flux pour recevoir des données du serveur
-
+    private static final String HOST = "localhost";
+    private static final int PORT = 12345;
+    
+    // Composants réseau
+    private Socket socket;
+    private BufferedReader in;
+    private PrintWriter out;
+    
     // Données de dessin
-    public static List<LineData> lines = Collections.synchronizedList(new ArrayList<>()); // Liste des lignes dessinées (partagée entre threads)
-    public static Color currentColor = Color.BLACK; // Couleur actuellement sélectionnée pour dessiner
-    public static ArrayList<Point> currentLine = new ArrayList<>(); // Points de la ligne en cours de dessin
-
+    private static List<LineData> lines = Collections.synchronizedList(new ArrayList<>());
+    private static Color currentColor = Color.BLACK;
+    private static ArrayList<Point> currentLine = new ArrayList<>();
+    
     // Interface graphique
-    private JButton selectedColorButton = null; // Bouton correspondant à la couleur sélectionnée
-
+    private JButton selectedColorButton = null;
+    private JTextArea chatArea;
+    private DrawingPanel drawingPanel;
+    private JTextField chatInput;
+    
     public Client() {
-        // Configuration de la fenêtre principale
-        setTitle("Collaborative Drawing");
-        setSize(800, 600);
+        setTitle("Dessiner c'est Gagné");
+        setSize(1000, 800);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setLocationRelativeTo(null);
-
+        
+        // Layout principal
+        setLayout(new BorderLayout());
+        
+        // Panneau principal divisé en deux
+        JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
+        
+        // Panneau gauche (dessin + couleurs)
+        JPanel leftPanel = new JPanel(new BorderLayout());
+        
+        // Palette de couleurs
+        JPanel colorPanel = createColorPanel();
+        leftPanel.add(colorPanel, BorderLayout.NORTH);
+        
         // Panneau de dessin
-        DrawingPanel drawingPanel = new DrawingPanel();
-        add(drawingPanel, BorderLayout.CENTER);
-
-        // Création de la palette de couleurs
+        drawingPanel = new DrawingPanel();
+        drawingPanel.setPreferredSize(new Dimension(600, 600));
+        leftPanel.add(drawingPanel, BorderLayout.CENTER);
+        
+        // Panneau droit (chat)
+        JPanel rightPanel = new JPanel(new BorderLayout());
+        
+        // Zone de chat
+        chatArea = new JTextArea();
+        chatArea.setEditable(false);
+        chatArea.setLineWrap(true);
+        chatArea.setWrapStyleWord(true);
+        JScrollPane scrollPane = new JScrollPane(chatArea);
+        scrollPane.setPreferredSize(new Dimension(300, 600));
+        
+        // Zone de saisie du chat
+        chatInput = new JTextField();
+        chatInput.addActionListener(e -> {
+            String message = chatInput.getText();
+            if (!message.trim().isEmpty()) {
+                out.println(message);
+                chatInput.setText("");
+            }
+        });
+        
+        rightPanel.add(scrollPane, BorderLayout.CENTER);
+        rightPanel.add(chatInput, BorderLayout.SOUTH);
+        
+        // Ajout des panneaux au splitPane
+        splitPane.setLeftComponent(leftPanel);
+        splitPane.setRightComponent(rightPanel);
+        splitPane.setResizeWeight(0.7);
+        
+        add(splitPane);
+        
+        // Configuration des événements de la souris
+        setupMouseListeners();
+        
+        // Connexion au serveur
+        connectToServer();
+    }
+    
+    private JPanel createColorPanel() {
         JPanel colorPanel = new JPanel();
         Color[] colors = {
             Color.RED, Color.ORANGE, Color.YELLOW,
@@ -49,104 +99,124 @@ public class Client extends JFrame {
             Color.CYAN, Color.BLUE,
             new Color(128, 0, 128), // Violet
             Color.PINK, new Color(139, 69, 19), // Marron
-            Color.GRAY, Color.BLACK, Color.WHITE // Ajout de la gomme
+            Color.GRAY, Color.BLACK, Color.WHITE // Gomme
         };
-
-        // Ajouter un bouton pour chaque couleur dans la palette
+        
         for (Color color : colors) {
             JButton colorButton = new JButton();
             colorButton.setPreferredSize(new Dimension(30, 30));
             colorButton.setBackground(color);
             colorButton.setOpaque(true);
             colorButton.setBorderPainted(false);
-
-            // Listener pour changer la couleur actuelle
+            
             colorButton.addActionListener(e -> {
                 if (selectedColorButton != null) {
-                    selectedColorButton.setPreferredSize(new Dimension(30, 30)); // Réduire la taille du bouton précédent
+                    selectedColorButton.setPreferredSize(new Dimension(30, 30));
                 }
-                selectedColorButton = colorButton; // Mettre à jour le bouton sélectionné
-                colorButton.setPreferredSize(new Dimension(40, 40)); // Agrandir le bouton sélectionné
-                currentColor = color; // Mettre à jour la couleur actuelle
-                colorPanel.revalidate(); // Rafraîchir l'affichage
+                selectedColorButton = colorButton;
+                colorButton.setPreferredSize(new Dimension(40, 40));
+                currentColor = color;
+                colorPanel.revalidate();
             });
-
-            // Si la couleur est noire, la sélectionner par défaut
+            
             if (color == Color.BLACK) {
                 colorButton.setPreferredSize(new Dimension(40, 40));
                 selectedColorButton = colorButton;
             }
-
-            colorPanel.add(colorButton); // Ajouter le bouton à la palette
+            
+            colorPanel.add(colorButton);
         }
-        add(colorPanel, BorderLayout.NORTH);
-
-        // Initialisation de la connexion au serveur
-        try {
-            socket = new Socket(SERVER, PORT); // Connexion au serveur
-            out = new PrintWriter(socket.getOutputStream(), true); // Flux pour envoyer des messages
-            in = new BufferedReader(new InputStreamReader(socket.getInputStream())); // Flux pour recevoir des messages
-
-            // Lancer un thread pour écouter les messages du serveur
-            MessageListener messageListener = new MessageListener(this);
-            messageListener.start();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        // Gestion des événements de la souris sur le panneau de dessin
+        
+        return colorPanel;
+    }
+    
+    private void setupMouseListeners() {
         drawingPanel.addMouseListener(new MouseAdapter() {
             @Override
             public void mousePressed(MouseEvent e) {
-                // Commencer une nouvelle ligne
                 currentLine.clear();
                 currentLine.add(e.getPoint());
-                sendDrawingData(); // Envoyer la ligne au serveur
-                drawingPanel.repaint(); // Rafraîchir l'affichage
+                sendDrawingData();
+                drawingPanel.repaint();
             }
-
+            
             @Override
             public void mouseReleased(MouseEvent e) {
-                // Ajouter la ligne à la liste des lignes finales
-                lines.add(new LineData(currentLine, currentColor));
-                currentLine = new ArrayList<>(); // Réinitialiser la ligne en cours
-                sendDrawingData(); // Envoyer les données au serveur
-                drawingPanel.repaint(); // Rafraîchir l'affichage
+                lines.add(new LineData(new ArrayList<>(currentLine), currentColor));
+                currentLine = new ArrayList<>();
+                sendDrawingData();
+                drawingPanel.repaint();
             }
         });
-
+        
         drawingPanel.addMouseMotionListener(new MouseAdapter() {
             @Override
             public void mouseDragged(MouseEvent e) {
-                // Ajouter un point à la ligne en cours de dessin
                 currentLine.add(e.getPoint());
-                sendDrawingData(); // Envoyer les données au serveur
-                drawingPanel.repaint(); // Rafraîchir l'affichage
+                sendDrawingData();
+                drawingPanel.repaint();
             }
         });
     }
-
-    // Méthode pour envoyer les données de dessin au serveur
+    
+    private void connectToServer() {
+        try {
+            socket = new Socket(HOST, PORT);
+            in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            out = new PrintWriter(socket.getOutputStream(), true);
+            
+            // Thread pour recevoir les messages
+            new Thread(() -> {
+                try {
+                    String message;
+                    while ((message = in.readLine()) != null) {
+                        if (message.startsWith("DRAW:")) {
+                            // Traitement des données de dessin
+                            try {
+                                byte[] data = Base64.getDecoder().decode(message.substring(5));
+                                ByteArrayInputStream bais = new ByteArrayInputStream(data);
+                                ObjectInputStream ois = new ObjectInputStream(bais);
+                                LineData receivedLineData = (LineData) ois.readObject();
+                                synchronized (lines) {
+                                    lines.add(receivedLineData);
+                                }
+                                SwingUtilities.invokeLater(() -> drawingPanel.repaint());
+                            } catch (Exception e) {
+                                e.printStackTrace();
+                            }
+                        } else {
+                            // Messages du chat et du jeu
+                            final String finalMessage = message;
+                            SwingUtilities.invokeLater(() -> {
+                                chatArea.append(finalMessage + "\n");
+                                chatArea.setCaretPosition(chatArea.getDocument().getLength());
+                            });
+                        }
+                    }
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }).start();
+            
+        } catch (IOException e) {
+            e.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Impossible de se connecter au serveur.");
+            System.exit(1);
+        }
+    }
+    
     private void sendDrawingData() {
         try {
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             ObjectOutputStream oos = new ObjectOutputStream(baos);
-            oos.writeObject(new LineData(currentLine, currentColor)); // Sérialiser la ligne et sa couleur
-            out.println(Base64.getEncoder().encodeToString(baos.toByteArray())); // Envoyer les données encodées
+            oos.writeObject(new LineData(new ArrayList<>(currentLine), currentColor));
+            out.println("DRAW:" + Base64.getEncoder().encodeToString(baos.toByteArray()));
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    // Point d'entrée du programme
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> {
-            Client client = new Client(); // Créer une nouvelle instance du client
-            client.setVisible(true); // Afficher l'interface graphique
-        });
-    }
-
-    // Méthodes utilitaires pour accéder aux données depuis d'autres classes
+    // Ajout des getters statiques nécessaires
     public static List<LineData> getLines() {
         return lines;
     }
@@ -159,7 +229,10 @@ public class Client extends JFrame {
         return currentLine;
     }
 
-    public static BufferedReader getIn() {
-        return in;
+    public static void main(String[] args) {
+        SwingUtilities.invokeLater(() -> {
+            Client client = new Client();
+            client.setVisible(true);
+        });
     }
 }
