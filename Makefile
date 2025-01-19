@@ -1,40 +1,16 @@
-# Variables de configuration
-JAVAC=javac
-JAVA=java
-FILES=Chrono.java Client.java ClientHandler.java Dessinateur.java Devineur.java DrawingPanel.java \
-      GestionnaireMots.java Jeu.java Joueur.java LineData.java MessageListener.java Mots.java \
-      mots.txt Partie.java Podium.java Server.java TestGestionnaireMots.java
-CLASSFILES=$(FILES:.java=.class)
+# Makefile pour compiler et nettoyer le projet Java
 
-# Règle par défaut (compile tout)
-all: $(CLASSFILES)
+# Variables
+JAVAC = javac
+JAVA_FILES = *.java
+CLASS_FILES = *.class
 
-# Règle pour compiler les fichiers .java en .class
-%.class: %.java
-	$(JAVAC) $<
+# Cible par défaut
+.PHONY: all
+all:
+	$(JAVAC) $(JAVA_FILES)
 
-# Règle pour exécuter le serveur
-run_server: all
-	$(JAVA) Server
-
-# Règle pour exécuter le client
-run_client: all
-	$(JAVA) Client
-
-# Règle pour exécuter les tests
-run_tests: all
-	$(JAVA) TestGestionnaireMots
-
-# Nettoyer les fichiers générés
+# Cible pour nettoyer les fichiers compilés
+.PHONY: clean
 clean:
-	rm -f *.class
-
-# Règle pour vérifier si tout est compilé et propre
-check: $(CLASSFILES)
-	@echo "Compilation terminée avec succès !"
-
-# Règle pour afficher les fichiers sources
-sources:
-	@echo $(FILES)
-
-.PHONY: all clean run_server run_client run_tests check sources
+	rm -f $(CLASS_FILES)

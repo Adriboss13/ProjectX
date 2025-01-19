@@ -187,7 +187,7 @@ Train fantôme,2
 Marchand de glace,2
 Jardin botanique,2
 Étoile de mer,2
-Annimalerie,2
+Animalerie,2
 Titanic,2
 Loup-garou,2
 Métamorphose,2
@@ -195,6 +195,6 @@ Labyrinthe,2
 Exorciste,2
 Journal télé,2
 Voyage astral,2
-Serviette hygiènique,2
+Serviette hygiénique,2
 Judo,2
 Zombie,2
