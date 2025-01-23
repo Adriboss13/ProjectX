@@ -301,7 +301,7 @@ public class Partie {
     private int calculerPoints(int tempsRestant, int ordre) {
         int basePoints = motCourant.getDifficulte().equals("1") ? 10 : 20;
         // Points supplémentaires diminuent avec l'ordre
-        int bonus = Math.max(0, (joueurs.size() - ordre + 1) * 5);
+        int bonus = Math.max(0, (joueurs.size() - ordre) * 5);
         return basePoints + (tempsRestant / 2) + bonus;
     }
 
